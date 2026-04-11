@@ -56,32 +56,6 @@
             animation: slowPan 40s linear infinite alternate;
         }
 
-        /* 2. Animated CRT Scanlines */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: linear-gradient(
-                to bottom,
-                rgba(255, 255, 255, 0),
-                rgba(255, 255, 255, 0) 50%,
-                rgba(0, 0, 0, 0.2) 50%,
-                rgba(0, 0, 0, 0.2)
-            );
-            background-size: 100% 4px;
-            z-index: 100;
-            pointer-events: none;
-            animation: scanlineMove 10s linear infinite;
-        }
-
-        @keyframes scanlineMove {
-            0% { background-position: 0 0; }
-            100% { background-position: 0 100vh; }
-        }
-
         @keyframes slowPan {
             0% { transform: translate(0, 0) scale(1); }
             100% { transform: translate(-20px, -20px) scale(1.05); }
@@ -490,7 +464,7 @@
                     <span class="btn-text" id="discord-text">Discord</span>
                     <i class="fa-solid fa-chevron-right btn-arrow"></i>
                     <div class="discord-alert" id="discord-alert">
-                        <i class="fa-solid fa-check" style="margin-right: 8px;"></i> ID COPIED
+                        <i class="fa-solid fa-check" style="margin-right: 8px;"></i> USERNAME COPIED
                     </div>
                 </a>
             </div>
