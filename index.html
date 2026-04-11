@@ -11,7 +11,7 @@
             --theme-red: #ff0033;
             --theme-red-glow: rgba(255, 0, 51, 0.6);
             --bg-color: #050000;
-            --card-bg: rgba(12, 3, 3, 0.65);
+            --card-bg: rgba(12, 3, 3, 0.75);
             --text-main: #f0f0f0;
             --text-muted: #a07a7a;
             
@@ -35,8 +35,9 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden;
             position: relative;
+            perspective: 1000px; /* For 3D Tilt Effect */
         }
 
         /* 1. Dynamic Background Image */
@@ -50,56 +51,74 @@
             background-image: url('background.jpg');
             background-size: cover;
             background-position: center;
-            filter: blur(12px) brightness(0.4); /* Darkened and blurred */
+            filter: blur(12px) brightness(0.35);
             z-index: -2;
-            animation: slowPan 30s linear infinite alternate; /* Subtle background movement */
+            animation: slowPan 40s linear infinite alternate;
         }
 
-        /* 2. CRT Scanline Grid Overlay */
+        /* 2. Animated CRT Scanlines */
         body::after {
             content: '';
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(rgba(255, 0, 51, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 0, 51, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            z-index: -1;
+            height: 100vh;
+            background: linear-gradient(
+                to bottom,
+                rgba(255, 255, 255, 0),
+                rgba(255, 255, 255, 0) 50%,
+                rgba(0, 0, 0, 0.2) 50%,
+                rgba(0, 0, 0, 0.2)
+            );
+            background-size: 100% 4px;
+            z-index: 100;
             pointer-events: none;
+            animation: scanlineMove 10s linear infinite;
         }
 
-        /* Subtle background panning animation */
+        @keyframes scanlineMove {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 100vh; }
+        }
+
         @keyframes slowPan {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(-20px, -20px); }
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-20px, -20px) scale(1.05); }
         }
 
-        /* Main Profile Card */
-        .container {
-            background: var(--card-bg);
-            border: 1px solid rgba(255, 0, 51, 0.3);
-            border-radius: 16px;
-            padding: 45px 35px;
-            width: 90%;
-            max-width: 420px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), 
-                        0 0 20px rgba(255, 0, 51, 0.15), 
-                        inset 0 0 20px rgba(255, 0, 51, 0.05);
-            position: relative;
-            backdrop-filter: blur(15px); /* Premium Glassmorphism */
-            -webkit-backdrop-filter: blur(15px);
-            z-index: 1;
-            animation: cardEntrance 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        /* Entrance Animation Wrapper */
+        .card-wrapper {
+            animation: cardEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             opacity: 0;
-            transform: translateY(30px);
+            transform: translateY(40px);
+            width: 100%;
+            display: flex;
+            justify-content: center;
         }
 
         @keyframes cardEntrance {
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Main Profile Card (Tilt Target) */
+        .container {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 0, 51, 0.3);
+            border-radius: 16px;
+            padding: 45px 35px 30px 35px;
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.9), 
+                        0 0 20px rgba(255, 0, 51, 0.15), 
+                        inset 0 0 20px rgba(255, 0, 51, 0.05);
+            position: relative;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 1;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out; /* Smooth tilt snap */
         }
 
         /* Top Cyberpunk Accents */
@@ -113,14 +132,32 @@
             height: 4px;
             background: var(--theme-red);
             border-radius: 0 0 4px 4px;
-            box-shadow: 0 0 15px var(--theme-red-glow);
+            box-shadow: 0 0 15px var(--theme-red-glow), 0 0 30px var(--theme-red);
         }
 
-        /* Avatar Container & Status Dot */
+        /* Live Terminal Header */
+        .terminal-header {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: var(--theme-red);
+            opacity: 0.8;
+            letter-spacing: 1px;
+            font-weight: bold;
+            transform: translateZ(20px); /* 3D pop */
+        }
+
+        /* Avatar Container */
         .avatar-wrapper {
             position: relative;
             display: inline-block;
             margin-bottom: 25px;
+            margin-top: 15px;
+            transform: translateZ(40px); /* 3D pop */
         }
 
         .profile-pic {
@@ -136,10 +173,10 @@
             filter: contrast(1.1);
         }
 
-        .profile-pic:hover {
+        .avatar-wrapper:hover .profile-pic {
             transform: scale(1.08) rotate(2deg);
             box-shadow: 0 0 0 3px var(--text-main), 
-                        0 0 35px var(--theme-red-glow);
+                        0 0 40px var(--theme-red-glow);
         }
 
         .status-dot {
@@ -148,32 +185,85 @@
             right: 10px;
             width: 20px;
             height: 20px;
-            background-color: var(--theme-red);
+            background-color: #00ff41; /* Hacker Green for active */
             border-radius: 50%;
             border: 3px solid var(--bg-color);
-            box-shadow: 0 0 10px var(--theme-red);
+            box-shadow: 0 0 10px #00ff41;
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 0, 51, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 0, 51, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 0, 51, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 65, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 65, 0); }
         }
 
-        /* Typography */
-        h1 {
-            font-size: 2rem;
+        /* Glitch Title */
+        .glitch-wrapper {
+            transform: translateZ(30px);
+        }
+
+        .glitch {
+            font-size: 2.2rem;
             margin-bottom: 5px;
             letter-spacing: 3px;
             text-transform: uppercase;
             font-weight: 800;
+            position: relative;
+            display: inline-block;
             text-shadow: 0 0 8px var(--theme-red-glow);
+        }
+
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--card-bg);
+        }
+
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 var(--tiktok-color);
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 var(--theme-red);
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0% { clip: rect(10px, 9999px, 31px, 0); transform: skew(0.6deg); }
+            5% { clip: rect(70px, 9999px, 12px, 0); transform: skew(0.2deg); }
+            10% { clip: rect(8px, 9999px, 98px, 0); transform: skew(0.8deg); }
+            15% { clip: rect(42px, 9999px, 11px, 0); transform: skew(0.4deg); }
+            20% { clip: rect(12px, 9999px, 65px, 0); transform: skew(0.1deg); }
+            25% { clip: rect(89px, 9999px, 23px, 0); transform: skew(0.9deg); }
+            30% { clip: rect(14px, 9999px, 76px, 0); transform: skew(0.5deg); }
+            100% { clip: rect(14px, 9999px, 76px, 0); transform: skew(0.5deg); }
+        }
+
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); transform: skew(0.3deg); }
+            5% { clip: rect(12px, 9999px, 54px, 0); transform: skew(0.8deg); }
+            10% { clip: rect(89px, 9999px, 2px, 0); transform: skew(0.1deg); }
+            15% { clip: rect(32px, 9999px, 87px, 0); transform: skew(0.6deg); }
+            20% { clip: rect(76px, 9999px, 14px, 0); transform: skew(0.2deg); }
+            25% { clip: rect(21px, 9999px, 65px, 0); transform: skew(0.9deg); }
+            30% { clip: rect(98px, 9999px, 34px, 0); transform: skew(0.4deg); }
+            100% { clip: rect(98px, 9999px, 34px, 0); transform: skew(0.4deg); }
         }
 
         .bio-container {
             min-height: 20px;
             margin-bottom: 20px;
+            transform: translateZ(25px);
         }
 
         .bio {
@@ -191,14 +281,10 @@
                        blink 0.8s step-end infinite;
         }
 
-        @keyframes typing {
-            to { width: 100%; }
-        }
-        @keyframes blink {
-            50% { border-color: transparent; }
-        }
+        @keyframes typing { to { width: 100%; } }
+        @keyframes blink { 50% { border-color: transparent; } }
 
-        /* Personal Identity Badges */
+        /* Badges */
         .badges {
             display: flex;
             justify-content: center;
@@ -206,38 +292,47 @@
             margin-bottom: 35px;
             animation: fadeIn 1s ease 1s forwards;
             opacity: 0;
+            transform: translateZ(20px);
         }
 
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
+        @keyframes fadeIn { to { opacity: 1; } }
 
         .badge {
-            background: rgba(255, 0, 51, 0.1);
+            background: rgba(255, 0, 51, 0.05);
             border: 1px solid rgba(255, 0, 51, 0.4);
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 0.75rem;
-            color: var(--text-muted);
+            color: var(--text-main);
             letter-spacing: 1px;
             display: flex;
             align-items: center;
             gap: 6px;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 0 10px rgba(255,0,51,0);
+        }
+        
+        .badge:hover {
+            background: rgba(255, 0, 51, 0.2);
+            box-shadow: inset 0 0 10px rgba(255,0,51,0.5), 0 0 10px rgba(255,0,51,0.3);
+            border-color: var(--theme-red);
+            transform: translateY(-2px);
         }
 
-        /* Buttons Styling */
+        /* Links */
         .links-container {
             display: flex;
             flex-direction: column;
             gap: 16px;
+            transform: translateZ(35px);
         }
 
         .link-btn {
             display: flex;
             align-items: center;
-            justify-content: space-between; /* Spreads icon, text, and arrow */
+            justify-content: space-between;
             padding: 16px 25px;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.5);
             text-decoration: none;
             font-size: 1.1rem;
             font-weight: bold;
@@ -250,39 +345,51 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: var(--text-main);
             opacity: 0;
-            transform: translateY(20px);
             animation: slideUpFade 0.6s ease forwards;
         }
 
-        /* Staggered animation for buttons */
         .link-btn:nth-child(1) { animation-delay: 1.2s; }
         .link-btn:nth-child(2) { animation-delay: 1.4s; }
         .link-btn:nth-child(3) { animation-delay: 1.6s; }
 
         @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Left Icon */
         .link-btn .btn-icon {
             font-size: 1.4rem;
             width: 30px;
             text-align: left;
             transition: all 0.3s ease;
+            z-index: 2;
         }
 
-        /* Right Arrow */
+        .link-btn .btn-text { z-index: 2; }
+
         .link-btn .btn-arrow {
             font-size: 1rem;
             opacity: 0.5;
             transition: all 0.3s ease;
+            z-index: 2;
         }
 
-        /* Button Hover Core Effect */
+        /* Button Background Hover Sweep */
+        .link-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: all 0.5s ease;
+            z-index: 1;
+        }
+
+        .link-btn:hover::before { left: 100%; }
+
         .link-btn:hover {
-            transform: translateY(-3px);
-            background: rgba(20, 20, 20, 0.8);
-            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px) scale(1.02);
+            background: rgba(20, 20, 20, 0.9);
         }
         
         .link-btn:hover .btn-arrow {
@@ -290,28 +397,15 @@
             transform: translateX(5px);
         }
 
-        /* TikTok Hover */
-        .link-btn.tiktok:hover {
-            box-shadow: 0 10px 20px rgba(0, 242, 254, 0.15), inset 0 0 15px rgba(0, 242, 254, 0.1);
-            border-color: var(--tiktok-color);
-        }
+        .link-btn.tiktok:hover { border-color: var(--tiktok-color); box-shadow: 0 5px 20px rgba(0, 242, 254, 0.2); }
         .link-btn.tiktok:hover .btn-icon, .link-btn.tiktok:hover .btn-text { color: var(--tiktok-color); text-shadow: 0 0 8px var(--tiktok-color); }
 
-        /* Instagram Hover */
-        .link-btn.instagram:hover {
-            box-shadow: 0 10px 20px rgba(225, 48, 108, 0.15), inset 0 0 15px rgba(225, 48, 108, 0.1);
-            border-color: var(--ig-color);
-        }
+        .link-btn.instagram:hover { border-color: var(--ig-color); box-shadow: 0 5px 20px rgba(225, 48, 108, 0.2); }
         .link-btn.instagram:hover .btn-icon, .link-btn.instagram:hover .btn-text { color: var(--ig-color); text-shadow: 0 0 8px var(--ig-color); }
 
-        /* Discord Hover */
-        .link-btn.discord:hover {
-            box-shadow: 0 10px 20px rgba(88, 101, 242, 0.15), inset 0 0 15px rgba(88, 101, 242, 0.1);
-            border-color: var(--discord-color);
-        }
+        .link-btn.discord:hover { border-color: var(--discord-color); box-shadow: 0 5px 20px rgba(88, 101, 242, 0.2); }
         .link-btn.discord:hover .btn-icon, .link-btn.discord:hover .btn-text { color: var(--discord-color); text-shadow: 0 0 8px var(--discord-color); }
 
-        /* Custom Discord Copied Alert */
         .discord-alert {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -324,72 +418,139 @@
             font-weight: bold;
             opacity: 0;
             pointer-events: none;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             transform: translateY(100%);
+            z-index: 3;
         }
         
-        .discord-alert.active {
-            opacity: 1;
-            transform: translateY(0);
+        .discord-alert.active { opacity: 1; transform: translateY(0); }
+
+        /* System Boot Logs (Personalized Footer) */
+        .sys-logs {
+            margin-top: 35px;
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            text-align: left;
+            opacity: 0.6;
+            line-height: 1.5;
+            transform: translateZ(10px);
+            border-top: 1px dashed rgba(255, 0, 51, 0.3);
+            padding-top: 15px;
         }
+        
+        .sys-logs span { display: block; }
+        .log-highlight { color: var(--theme-red); }
 
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="avatar-wrapper">
-            <img src="M3.jpg" alt="James Wolfe" class="profile-pic">
-            <div class="status-dot"></div>
-        </div>
-        
-        <h1>James Wolfe</h1>
-        
-        <div class="bio-container">
-            <span class="bio">SYSTEM.ONLINE // TERMINAL_ACTIVE</span>
-        </div>
+    <div class="card-wrapper">
+        <div class="container" id="tilt-card">
+            
+            <div class="terminal-header">
+                <span>LOC: CEBU_PH</span>
+                <span id="live-clock">00:00:00</span>
+            </div>
 
-        <div class="badges">
-            <div class="badge"><i class="fa-solid fa-dumbbell"></i> LIFT</div>
-            <div class="badge"><i class="fa-solid fa-gamepad"></i> GAME</div>
-            <div class="badge"><i class="fa-solid fa-code"></i> CODE</div>
-        </div>
+            <div class="avatar-wrapper">
+                <img src="M3.jpg" alt="James Wolfe" class="profile-pic">
+                <div class="status-dot"></div>
+            </div>
+            
+            <div class="glitch-wrapper">
+                <h1 class="glitch" data-text="James Wolfe">James Wolfe</h1>
+            </div>
+            
+            <div class="bio-container">
+                <span class="bio">SYSTEM.ONLINE // TERMINAL_ACTIVE</span>
+            </div>
 
-        <div class="links-container">
-            <a href="https://www.tiktok.com/@jetwolfe?is_from_webapp=1&sender_device=pc" target="_blank" class="link-btn tiktok">
-                <i class="fa-brands fa-tiktok btn-icon"></i>
-                <span class="btn-text">TikTok</span>
-                <i class="fa-solid fa-chevron-right btn-arrow"></i>
-            </a>
+            <div class="badges">
+                <div class="badge"><i class="fa-solid fa-dumbbell"></i> LIFT</div>
+                <div class="badge"><i class="fa-solid fa-gamepad"></i> GAME</div>
+                <div class="badge"><i class="fa-solid fa-code"></i> CODE</div>
+            </div>
 
-            <a href="https://www.instagram.com/jetwolfe/" target="_blank" class="link-btn instagram">
-                <i class="fa-brands fa-instagram btn-icon"></i>
-                <span class="btn-text">Instagram</span>
-                <i class="fa-solid fa-chevron-right btn-arrow"></i>
-            </a>
+            <div class="links-container">
+                <a href="https://www.tiktok.com/@jetwolfe?is_from_webapp=1&sender_device=pc" target="_blank" class="link-btn tiktok">
+                    <i class="fa-brands fa-tiktok btn-icon"></i>
+                    <span class="btn-text">TikTok</span>
+                    <i class="fa-solid fa-chevron-right btn-arrow"></i>
+                </a>
 
-            <a href="#" class="link-btn discord" onclick="copyDiscord(event)">
-                <i class="fa-brands fa-discord btn-icon"></i>
-                <span class="btn-text" id="discord-text">Discord</span>
-                <i class="fa-solid fa-chevron-right btn-arrow"></i>
-                <div class="discord-alert" id="discord-alert">
-                    <i class="fa-solid fa-check" style="margin-right: 8px;"></i> USERNAME COPIED
-                </div>
-            </a>
+                <a href="https://www.instagram.com/jetwolfe/" target="_blank" class="link-btn instagram">
+                    <i class="fa-brands fa-instagram btn-icon"></i>
+                    <span class="btn-text">Instagram</span>
+                    <i class="fa-solid fa-chevron-right btn-arrow"></i>
+                </a>
+
+                <a href="#" class="link-btn discord" onclick="copyDiscord(event)">
+                    <i class="fa-brands fa-discord btn-icon"></i>
+                    <span class="btn-text" id="discord-text">Discord</span>
+                    <i class="fa-solid fa-chevron-right btn-arrow"></i>
+                    <div class="discord-alert" id="discord-alert">
+                        <i class="fa-solid fa-check" style="margin-right: 8px;"></i> ID COPIED
+                    </div>
+                </a>
+            </div>
+
+            <div class="sys-logs">
+                <span>> INIT.HARDWARE_CHECK... <span class="log-highlight">OK</span></span>
+                <span>> SYS_CFG: RYZEN 5 7535HS // RTX 2050 // 16GB RAM</span>
+                <span>> DATA_ENG_MODULES: SELENIUM, PLAYWRIGHT, BS4... <span class="log-highlight">LOADED</span></span>
+                <span>> AWAITING_INPUT_</span>
+            </div>
+
         </div>
     </div>
 
     <script>
+        // 1. Live Terminal Clock
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+            document.getElementById('live-clock').textContent = timeString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 2. 3D Tilt Effect on Mouse Move
+        const card = document.getElementById('tilt-card');
+        const wrapper = document.querySelector('.card-wrapper');
+
+        // Only apply tilt effect if the user is on a device with a mouse
+        if (window.matchMedia("(pointer: fine)").matches) {
+            document.addEventListener('mousemove', (e) => {
+                // Calculate mouse position relative to the center of the screen
+                let xAxis = (window.innerWidth / 2 - e.pageX) / 45; // Adjust divisor for sensitivity
+                let yAxis = (window.innerHeight / 2 - e.pageY) / 45;
+                
+                // Apply rotation
+                card.style.transform = `rotateY(${xAxis}deg) rotateX(${-yAxis}deg)`;
+            });
+
+            // Reset rotation when mouse leaves the window
+            document.addEventListener('mouseleave', () => {
+                card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+                card.style.transition = `transform 0.5s ease`; // Add smooth transition back to center
+                
+                // Remove transition after it completes to not lag the mousemove
+                setTimeout(() => {
+                    card.style.transition = `transform 0.1s ease-out`;
+                }, 500);
+            });
+        }
+
+        // 3. Discord ID Copier
         function copyDiscord(e) {
             e.preventDefault();
             const discordUsername = "jetwolfe";
             navigator.clipboard.writeText(discordUsername).then(() => {
                 const alertBox = document.getElementById("discord-alert");
                 
-                // Trigger the slide-up copied alert
                 alertBox.classList.add("active");
                 
-                // Hide it after 2 seconds
                 setTimeout(() => {
                     alertBox.classList.remove("active");
                 }, 2000);
